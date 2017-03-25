@@ -184,7 +184,7 @@ class CrawlerScheduler(object):
     def _download_media(self, site, medium_type, start):
 
         #current_folder = os.getcwd()
-        current_folder = "/Volume/Natural/Tumblr/tumblr-crawler"
+        current_folder = "/Volumes/Natural/Tumblr/tumblr-crawler"
         target_folder = os.path.join(current_folder, site)
         if not os.path.isdir(target_folder):
             os.mkdir(target_folder)
