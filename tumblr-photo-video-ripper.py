@@ -121,6 +121,7 @@ class DownloadWorker(Thread):
                                         timeout=TIMEOUT)
                     if resp.status_code == 403:
                         retry_times = RETRY
+                        os.system('touch ' + file_path)
                         print("Access Denied when retrieve %s.\n" % medium_url)
                         raise Exception("Access Denied")
                     with open(file_path, 'wb') as fh:
@@ -133,7 +134,8 @@ class DownloadWorker(Thread):
                 retry_times += 1
             else:
                 try:
-                    os.remove(file_path)
+                    pass
+                    #os.remove(file_path)
                 except OSError:
                     pass
                 print("Failed to retrieve %s from %s.\n" % (medium_type,
@@ -180,7 +182,9 @@ class CrawlerScheduler(object):
         print("Finish Downloading All the photos from %s" % site)
 
     def _download_media(self, site, medium_type, start):
-        current_folder = os.getcwd()
+
+        #current_folder = os.getcwd()
+        current_folder = "/Volume/Natural/Tumblr/tumblr-crawler"
         target_folder = os.path.join(current_folder, site)
         if not os.path.isdir(target_folder):
             os.mkdir(target_folder)
