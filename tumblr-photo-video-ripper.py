@@ -25,6 +25,8 @@ MEDIA_NUM = 50
 # Numbers of downloading threads concurrently
 THREADS = 10
 
+# Set of Downloaded Files
+SET = set()
 
 def video_hd_match():
     hd_pattern = re.compile(r'.*"hdUrl":("([^\s,]*)"|false),')
@@ -110,6 +112,11 @@ class DownloadWorker(Thread):
 
         file_path = os.path.join(target_folder, medium_name)
         if not os.path.isfile(file_path):
+           
+            if medium_name in SET:
+                print("%s has been downloaded. \n" % medium_name)
+                return 
+           
             print("Downloading %s from %s.\n" % (medium_name,
                                                  medium_url))
             retry_times = 0
@@ -127,6 +134,7 @@ class DownloadWorker(Thread):
                     with open(file_path, 'wb') as fh:
                         for chunk in resp.iter_content(chunk_size=1024):
                             fh.write(chunk)
+                        SET.add(medium_name)
                     break
                 except:
                     # try again
@@ -225,9 +233,9 @@ def usage():
           "Sample File Content:\nsite1,site2\n\n"
           "Or use command line options:\n\n"
           "Sample:\npython tumblr-photo-video-ripper.py site1,site2\n\n\n")
-    print(u"未找到sites.txt文件，请创建.\n"
-          u"请在文件中指定Tumblr站点名，并以 逗号/空格/tab/表格鍵/回车符 分割，支持多行.\n"
-          u"保存文件并重试.\n\n"
+    print(u"未找到sites.txt文件，??建.\n"
+          u"?在文件中指定Tumblr站点名，并以 逗号/空格/tab/表格鍵/回?符 分割，支持多行.\n"
+          u"保存文件并重?.\n\n"
           u"例子: site1,site2\n\n"
           u"或者直接使用命令行参数指定站点\n"
           u"例子: python tumblr-photo-video-ripper.py site1,site2")
@@ -238,8 +246,8 @@ def illegal_json():
           "Please refer to 'proxies_sample1.json' and 'proxies_sample2.json'.\n"
           "And go to http://jsonlint.com/ for validation.\n\n\n")
     print(u"文件proxies.json格式非法.\n"
-          u"请参照示例文件'proxies_sample1.json'和'proxies_sample2.json'.\n"
-          u"然后去 http://jsonlint.com/ 进行验证.")
+          u"?参照示例文件'proxies_sample1.json'和'proxies_sample2.json'.\n"
+          u"然后去 http://jsonlint.com/ ?行??.")
 
 
 def parse_sites(filename):
@@ -274,6 +282,14 @@ if __name__ == "__main__":
                 illegal_json()
                 sys.exit(1)
 
+
+    if os.path.exists("./filelist"):
+        with open("./filelist", "r") as fl:
+            line = fl.readline()
+            while line:
+                SET.add(line[:-1])
+                line = fl.readline()
+  
     if len(sys.argv) < 2:
         # check the sites file
         filename = "sites.txt"
@@ -290,3 +306,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     CrawlerScheduler(sites, proxies=proxies)
+
+    setFile = open("./filelist", "w")
+    for downloaded in SET:
+        fw.write(downloaded)
+        fw.write("\n")
+    setfile.close()
+
